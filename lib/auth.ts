@@ -1,15 +1,35 @@
+import {
+    NextAuthOptions,
+    User as NextAuthUser,
+    Session as NextAuthSession
+} from 'next-auth';
+
 import bcrypt from 'bcrypt';
-import NextAuth from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
+import GoogleProvider from 'next-auth/providers/google';
+
 import { PrismaClient } from '@prisma/client';
 import { PrismaAdapter } from '@next-auth/prisma-adapter';
 
 const prisma = new PrismaClient();
 
-const authOptions = {
+interface CustomUser extends NextAuthUser {
+    id: string;
+}
+
+// Extend the Session type to include the custom user type
+interface CustomSession extends NextAuthSession {
+    user: CustomUser;
+}
+
+export const authConfig: NextAuthOptions = {
     secret: process.env.SECRET,
     adapter: PrismaAdapter(prisma),
     providers: [
+        GoogleProvider({
+            clientId: process.env.GOOGLE_CLIENT_ID as string,
+            clientSecret: process.env.GOOGLE_CLIENT_SECRET as string
+        }),
         CredentialsProvider({
             name: 'Credentials',
             id: 'credentials',
@@ -27,14 +47,14 @@ const authOptions = {
                 const user = await prisma.user.findUnique({
                     where: { email: email }
                 });
-                if (!user) return null;
+                if (!user) throw new Error('Wrong email or password!');
 
                 const passwordMatch = await bcrypt.compare(
                     password,
-                    user.hashedPassword
+                    user.hashedPassword as string
                 );
 
-                if (!passwordMatch) return null;
+                if (!passwordMatch) throw new Error('Wrong email or password!');
 
                 return user;
             }
@@ -42,24 +62,25 @@ const authOptions = {
     ],
     session: { strategy: 'jwt' },
     pages: {
-        login: '/login',
+        signIn: '/login',
         error: '/login'
     },
     callbacks: {
         async session({ token, session }) {
             if (token) {
-                session.user.id = token.id;
+                session.user = session.user || {}; // Ensure session.user is always defined
+                (session.user as CustomUser).id = token.id as string;
                 session.user.name = token.name;
                 session.user.email = token.email;
             }
 
-            return session;
+            return session as CustomSession;
         },
         async jwt({ token, user }) {
             const email = token.email;
 
             const dbUser = await prisma.user.findUnique({
-                where: { email: email }
+                where: { email: email as string }
             });
 
             if (!dbUser) {
@@ -75,7 +96,3 @@ const authOptions = {
         }
     }
 };
-
-const handler = NextAuth(authOptions);
-
-export { handler as GET, handler as POST };

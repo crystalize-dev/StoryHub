@@ -5,11 +5,16 @@ const config = {
         './components/**/*.{js,ts,jsx,tsx,mdx}',
         './app/**/*.{js,ts,jsx,tsx,mdx}'
     ],
-    darkMode: 'class',
+    darkMode: 'selector',
     theme: {
         extend: {
+            backgroundOpacity: ['active'],
             colors: {
-                primary: 'var(--primary)',
+                primary: {
+                    hover: 'var(--primary-hover)',
+                    DEFAULT: 'var(--primary)',
+                    dark: 'var(--primary-dark)'
+                },
                 light: {
                     bg: 'var(--bg-full)',
                     object: 'var(--bg-object)'

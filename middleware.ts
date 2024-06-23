@@ -4,7 +4,12 @@ import { NextRequest, NextResponse } from 'next/server';
 export default async function middleware(req: NextRequest) {
     const path = req.nextUrl.pathname;
 
-    if (path.includes('_next') || path.includes('/api') || path === '/login') {
+    if (
+        path.includes('_next') ||
+        path.includes('/api') ||
+        path === '/login' ||
+        path === '/forgot'
+    ) {
         return NextResponse.next();
     }
 

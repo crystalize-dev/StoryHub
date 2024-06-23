@@ -22,8 +22,11 @@ button {
     --bg-object-dark: #292929;
 
     --bg-full: #F5F5F5;
-    --bg-object: #ebebeb;
+    --bg-object: #d1d1d1;
+
     --primary: #5858e6;
+    --primary-dark: #3232aa;
+    --primary-hover: #7373ea;
 
     scrollbar-width: thin;
     background-color: var(--bg-full);

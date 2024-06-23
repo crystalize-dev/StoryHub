@@ -37,7 +37,7 @@ const ThemeToggler: React.FC = () => {
     return (
         <button
             onClick={toggleTheme}
-            className="w-fit rounded bg-primary px-4 py-2 text-white"
+            className="absolute right-4 top-4 w-fit rounded bg-primary px-4 py-2 text-white"
         >
             {theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
         </button>
