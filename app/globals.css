@@ -6,7 +6,7 @@
 
 * {
     min-width: 0;
-    font-family: 'Montserrat', sans-serif;
+    font-family: 'Roboto', sans-serif;
     scrollbar-width: thin;
 }
 
@@ -19,11 +19,11 @@ button {
 
 :root {
     --bg-full-dark: #1E1E1E;
-    --bg-object-dark: #2E2E2E;
+    --bg-object-dark: #292929;
 
     --bg-full: #F5F5F5;
-    --bg-object: #E0E0E0;
-    --primary: #6363fa;
+    --bg-object: #ebebeb;
+    --primary: #5858e6;
 
     scrollbar-width: thin;
     background-color: var(--bg-full);
