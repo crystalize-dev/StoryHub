@@ -8,7 +8,8 @@ export default async function middleware(req: NextRequest) {
         path.includes('_next') ||
         path.includes('/api') ||
         path === '/login' ||
-        path === '/forgot'
+        path === '/forgot-password' ||
+        path.includes('reset-password')
     ) {
         return NextResponse.next();
     }

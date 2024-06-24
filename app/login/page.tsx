@@ -1,12 +1,10 @@
 'use client';
-import React, { FormEvent, useEffect, useState } from 'react';
-import ThemeToggler from '../components/UI/ThemeToggler';
+import React, { FormEvent, useState } from 'react';
 import Image from 'next/image';
 import logo from '../img/logo.png';
 import google from '../img/google.webp';
 import Input from '../components/UI/Inputs/Input';
 import Button from '../components/UI/Buttons/Button';
-import Link from 'next/link';
 import { AnimatePresence, motion } from 'framer-motion';
 import { signIn } from 'next-auth/react';
 import toast from 'react-hot-toast';
@@ -26,11 +24,10 @@ const LoginPage = () => {
         e.preventDefault();
 
         const formData = new FormData(e.target as HTMLFormElement);
+        const email = formData.get('emailLogin');
+        const password = formData.get('passwordLogin');
 
         if (mode === 'login') {
-            const email = formData.get('emailLogin');
-            const password = formData.get('passwordLogin');
-
             if (!email || !password) {
                 toast.error('Fill in all required fields!');
                 return;
@@ -55,14 +52,12 @@ const LoginPage = () => {
                     router.push('/');
                 }
             } catch (err) {
-                console.log('err here2! - ', err);
                 setFetching(false);
                 toast.dismiss(toastId);
+
                 toast.error('Error occurred!');
             }
         } else {
-            const email = formData.get('emailRegister');
-            const password = formData.get('passwordRegister');
             const passwordRepeat = formData.get('passwordRepeat');
 
             if (!email || !password || !passwordRepeat) {
@@ -101,7 +96,6 @@ const LoginPage = () => {
                 error: 'Error occured!'
             });
         } catch (err) {
-            console.log(err);
             setFetching(false);
         }
     };
@@ -126,27 +120,25 @@ const LoginPage = () => {
     const [activeImageId, setActiveImageId] = useState(sliderImages[0].id);
 
     return (
-        <div className="to-primary-hover flex h-full w-full flex-col items-center justify-center gap-8 bg-gradient-to-br from-light-bg p-8 dark:from-dark-bg dark:to-primary">
-            <ThemeToggler />
-
+        <div className="flex h-full w-full flex-col items-center justify-center gap-8 bg-gradient-to-br from-light-bg to-primary-hover p-8 dark:from-dark-bg dark:to-primary">
             <AnimatePresence presenceAffectsLayout>
                 {(mode === 'login' || mode === 'register') && (
                     <motion.form
                         initial={{ height: 'auto' }}
                         animate={{ height: 'auto' }}
                         exit={{ height: 'auto' }}
-                        layout
+                        layoutId="loginForm"
                         onSubmit={(e) => submit(e)}
-                        className={`flex max-h-[95%] max-w-[95%] gap-10 rounded-md bg-white !bg-opacity-50 p-6 shadow-md dark:bg-black ${mode === 'register' && 'flex-row-reverse'}`}
+                        className={`flex max-h-[95%] max-w-[95%] gap-10 rounded-2xl bg-white !bg-opacity-50 p-6 shadow-md dark:bg-black ${mode === 'register' && 'flex-row-reverse'}`}
                     >
                         <AnimatePresence presenceAffectsLayout>
-                            {mode === 'login' && (
+                            {(mode === 'login' || mode === 'register') && (
                                 <motion.div
                                     layout
                                     initial={{ opacity: 0 }}
                                     animate={{ opacity: 1 }}
                                     exit={{ opacity: 0 }}
-                                    className="flex min-w-96 flex-col gap-4 px-8"
+                                    className="flex min-w-96 flex-col gap-2 px-8"
                                 >
                                     <motion.div
                                         layoutId="logoImg"
@@ -173,172 +165,59 @@ const LoginPage = () => {
                                         className="flex flex-col gap-2"
                                     >
                                         <h1 className="mt-4 text-3xl font-bold">
-                                            Welcome back!✌️
+                                            {mode === 'login'
+                                                ? 'Welcome back!✌️'
+                                                : 'Create an account'}
                                         </h1>
                                         <h2 className="text-sm font-normal text-zinc-400 dark:text-white/20">
-                                            please log in below
+                                            {mode === 'login'
+                                                ? 'please log in below'
+                                                : 'please register below'}
                                         </h2>
                                     </motion.div>
 
                                     <Input
+                                        layoutId="emailLogin"
                                         type="email"
                                         placeholder="Email"
                                         disabled={fetching}
                                         icon="mail"
+                                        required={true}
                                         name="emailLogin"
                                         placeholderType="classic"
                                         className="mt-4"
                                     />
 
                                     <Input
-                                        layoutId="passwordInput"
+                                        layoutId="passwordLogin"
                                         type="password"
+                                        required={true}
                                         name="passwordLogin"
                                         placeholder="Password"
                                         disabled={fetching}
                                         placeholderType="classic"
+                                        forgotPassword={mode === 'login'}
                                         passwordSetup={true}
                                     />
 
                                     <Input
-                                        layoutId="passwrodRepeat"
+                                        layoutId="passwordRepeat"
                                         type="password"
-                                        hidden
-                                    />
-
-                                    <Link
-                                        href={'/forgot'}
-                                        className={`cursor-pointer self-end text-xs text-zinc-500 outline-none transition-all hover:text-primary hover:underline focus:text-primary focus:underline dark:text-white/20 ${fetching && 'pointer-events-none opacity-50'}`}
-                                    >
-                                        Forgot password?
-                                    </Link>
-
-                                    <Button
-                                        layoutId="submitButton"
-                                        type="submit"
-                                        variant="colored"
-                                        className="mt-4 w-full"
-                                        disabled={fetching}
-                                        buttonClassName="dark:bg-dark-bg text-white bg-primary hover:!bg-primary-hover dark:hover:!bg-dark-object outline outline-2 outline-offset-1 outline-transparent focus:outline-primary"
-                                    >
-                                        Sign in
-                                    </Button>
-
-                                    <div className="relative flex items-center justify-center gap-2">
-                                        <hr className="grow border-t border-solid border-black/20 dark:border-white/20" />
-                                        <p className="wf-it whitespace-nowrap text-sm text-zinc-400 dark:text-white/20">
-                                            or
-                                        </p>
-                                        <hr className="grow border-t border-solid border-black/20 dark:border-white/20" />
-                                    </div>
-
-                                    <Button
-                                        type="button"
-                                        variant="bordered"
-                                        className="w-full"
-                                        disabled={fetching}
-                                        onClick={signInWithGoogle}
-                                        buttonClassName="flex items-center gap-2 justify-center outline outline-2 outline-offset-2 outline-transparent focus:!outline-primary border-black/20 hover:bg-primary hover:text-white dark:border-white/20 dark:text-white dark:hover:bg-white dark:hover:text-black hover:border-transparent"
-                                    >
-                                        <Image
-                                            alt="google"
-                                            src={google}
-                                            width={20}
-                                            height={20}
-                                        />
-                                        Sign in with Google
-                                    </Button>
-
-                                    <div className="mb-12 mt-4 flex items-center justify-center gap-2 text-sm text-zinc-500">
-                                        Don`t have an account?
-                                        <Button
-                                            type="button"
-                                            variant="transparent"
-                                            disabled={fetching}
-                                            onClick={() => setMode('register')}
-                                            buttonClassName="!p-0 cursor-pointer font-semibold text-black/70 outline-none transition-all hover:text-primary hover:underline focus:text-primary focus:underline dark:text-white/70"
-                                        >
-                                            Sign in
-                                        </Button>
-                                    </div>
-                                </motion.div>
-                            )}
-                            {mode === 'register' && (
-                                <motion.div
-                                    layout
-                                    initial={{ opacity: 0 }}
-                                    animate={{ opacity: 1 }}
-                                    exit={{ opacity: 0 }}
-                                    className="flex min-w-96 flex-col gap-4 px-8"
-                                >
-                                    <motion.div
-                                        layoutId="logoImg"
-                                        className="relative flex h-10 w-fit select-none items-center gap-2"
-                                    >
-                                        <Image
-                                            src={logo}
-                                            alt="logo"
-                                            width={500}
-                                            height={500}
-                                            priority={true}
-                                            className="h-full w-fit object-cover"
-                                        />
-                                        <h1 className="text-lg">
-                                            Story
-                                            <span className="text-primary">
-                                                Hub
-                                            </span>
-                                        </h1>
-                                    </motion.div>
-
-                                    <motion.div
-                                        layoutId="loginFormHeader"
-                                        className="flex flex-col gap-2"
-                                    >
-                                        <h1 className="mt-4 text-3xl font-bold">
-                                            Create an account
-                                        </h1>
-                                        <h2 className="text-sm font-normal text-zinc-400 dark:text-white/20">
-                                            please register below
-                                        </h2>
-                                    </motion.div>
-
-                                    <Input
-                                        type="email"
-                                        placeholder="Email"
-                                        disabled={fetching}
-                                        icon="mail"
-                                        name="emailRegister"
-                                        placeholderType="classic"
-                                        className="mt-4"
-                                    />
-
-                                    <Input
-                                        layoutId="passwordInput"
-                                        type="password"
-                                        name="passwordRegister"
-                                        disabled={fetching}
-                                        placeholder="Password"
-                                        passwordSetup={true}
-                                        placeholderType="classic"
-                                    />
-
-                                    <Input
-                                        type="password"
+                                        hidden={mode === 'login'}
                                         name="passwordRepeat"
-                                        layoutId="passwrodRepeat"
+                                        required={mode === 'register'}
                                         disabled={fetching}
                                         placeholder="Repeat password"
                                         placeholderType="classic"
                                     />
 
                                     <Button
-                                        type="submit"
-                                        disabled={fetching}
                                         layoutId="submitButton"
+                                        type="submit"
                                         variant="colored"
                                         className="mt-4 w-full"
-                                        buttonClassName="dark:bg-dark-bg text-white bg-primary hover:!bg-primary-hover dark:hover:!bg-dark-object outline outline-2 outline-offset-1 outline-transparent focus:outline-primary"
+                                        disabled={fetching}
+                                        buttonClassName="dark:bg-primary text-white bg-primary hover:!bg-primary-hover dark:hover:!bg-primary-dark outline outline-2 outline-offset-1 outline-transparent focus:outline-primary"
                                     >
                                         Sign in
                                     </Button>
@@ -369,15 +248,25 @@ const LoginPage = () => {
                                     </Button>
 
                                     <div className="mb-12 mt-4 flex items-center justify-center gap-2 text-sm text-zinc-500">
-                                        Already have an account?
+                                        {(mode === 'login'
+                                            ? 'Don`t'
+                                            : 'Already') + ' have an account?'}
                                         <Button
                                             type="button"
                                             variant="transparent"
-                                            onClick={() => setMode('login')}
                                             disabled={fetching}
-                                            buttonClassName="cursor-pointer font-semibold text-black outline-none transition-all hover:text-primary hover:underline focus:text-primary focus:underline dark:text-white/70"
+                                            onClick={() =>
+                                                setMode(
+                                                    mode === 'login'
+                                                        ? 'register'
+                                                        : 'login'
+                                                )
+                                            }
+                                            buttonClassName="!p-0 cursor-pointer font-semibold text-black/70 outline-none transition-all hover:text-primary hover:underline focus:text-primary focus:underline dark:text-white/70"
                                         >
-                                            Log in
+                                            {mode === 'login'
+                                                ? 'Sign in'
+                                                : 'Log in'}
                                         </Button>
                                     </div>
                                 </motion.div>
@@ -405,8 +294,9 @@ const LoginPage = () => {
                                                   borderBottomLeftRadius: '3rem'
                                               }
                                     }
+                                    exit={{ scaleY: 0 }}
                                     layoutId="sideBanner"
-                                    className="flex h-full min-w-96 grow flex-col items-center gap-4 overflow-hidden rounded-t-lg bg-light-bg p-4 dark:bg-dark-bg"
+                                    className="flex h-full min-w-96 grow flex-col items-center gap-4 overflow-hidden rounded-t-lg bg-light-bg p-4 dark:bg-dark-object"
                                 >
                                     <div className="relative flex h-full w-96 min-w-96 gap-4 overflow-hidden">
                                         <AnimatePresence mode="wait">
@@ -483,7 +373,7 @@ const LoginPage = () => {
                                                 onClick={() =>
                                                     setActiveImageId(image.id)
                                                 }
-                                                className={`relative z-20 flex h-2 w-2 cursor-pointer items-center justify-center rounded-full bg-light-object outline outline-4 outline-light-bg transition-all dark:outline-dark-bg ${
+                                                className={`relative z-20 flex h-2 w-2 cursor-pointer items-center justify-center rounded-full bg-light-object transition-all ${
                                                     activeImageId ===
                                                         image.id &&
                                                     '!bg-primary'

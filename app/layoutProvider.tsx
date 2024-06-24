@@ -8,7 +8,10 @@ import { Toaster } from 'react-hot-toast';
 
 export const LayoutProvider = ({ children }: { children: React.ReactNode }) => {
     const path = usePathname();
-    const isLoginPage = path === '/login';
+    const isLoginPage =
+        path === '/login' ||
+        path === '/forgot-password' ||
+        path.includes('reset-password');
 
     return (
         <SessionProvider>
