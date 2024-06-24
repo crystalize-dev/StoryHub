@@ -73,7 +73,7 @@ const ForgotPage = ({ params }: any) => {
             <motion.form
                 layoutId="loginForm"
                 onSubmit={(e) => submit(e)}
-                className={`relative flex max-h-[95%] max-w-[95%] flex-col items-center gap-4 rounded-2xl bg-white !bg-opacity-50 p-12 shadow-md dark:bg-black`}
+                className={`relative flex max-h-[95%] w-96 min-w-96 max-w-[95%] flex-col items-center gap-4 rounded-2xl bg-white !bg-opacity-50 p-12 shadow-md dark:bg-black`}
             >
                 <motion.div
                     layoutId="logoImg"

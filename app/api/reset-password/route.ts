@@ -16,8 +16,8 @@ export async function POST(req: NextRequest) {
             where: { id: user.id },
             data: {
                 hashedPassword: hashedPassword,
-                resetToken: undefined,
-                resetTokenExpired: undefined
+                resetToken: null,
+                resetTokenExpired: null
             }
         });
     } catch (err) {
