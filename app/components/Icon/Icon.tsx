@@ -1,27 +1,31 @@
 import React from 'react';
 import { IconType, icons } from './icon-database';
-;
 
 interface IconProps extends React.HTMLAttributes<SVGSVGElement> {
     icon: IconType;
     fill?: string;
 }
 
-export default function Icon({ icon, fill = '', ...props }: IconProps) {
-    const { className, ...otherProps } = props;
+const Icon: React.FC<IconProps> = ({
+    icon,
+    fill = 'none',
+    className = '',
+    ...props
+}) => {
+    const iconPaths = icons[icon];
 
     return (
         <svg
-            {...otherProps}
+            {...props}
             xmlns="http://www.w3.org/2000/svg"
-            fill={fill ? fill : 'none'}
+            fill={fill}
             viewBox="0 0 24 24"
             strokeWidth={2}
             stroke="currentColor"
-            className={'h-5 w-5 cursor-pointer select-none ' + className}
+            className={`h-5 w-5 cursor-pointer select-none ${className}`}
         >
-            {typeof icons[icon] !== 'string' ? (
-                (icons[icon] as Array<string>).map((path: string) => (
+            {Array.isArray(iconPaths) ? (
+                iconPaths.map((path) => (
                     <path
                         key={path}
                         fillRule="evenodd"
@@ -37,9 +41,11 @@ export default function Icon({ icon, fill = '', ...props }: IconProps) {
                     clipRule="evenodd"
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                    d={icons[icon] as string}
+                    d={iconPaths}
                 />
             )}
         </svg>
     );
-}
+};
+
+export default Icon;
