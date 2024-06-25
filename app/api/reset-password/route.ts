@@ -16,8 +16,10 @@ export async function POST(req: NextRequest) {
         }
 
         // Хэширование пароля
-        const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(password, salt);
+        const hashedPassword = await bcrypt.hash(
+            password,
+            await bcrypt.genSalt(10)
+        );
 
         // Обновление пользователя
         const userUpdated = await prisma.user.update({
