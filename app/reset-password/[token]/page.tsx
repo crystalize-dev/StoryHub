@@ -7,7 +7,6 @@ import toast from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
 import Input from '../../components/UI/Inputs/Input';
 import Button from '../../components/UI/Buttons/Button';
-import ThemeToggler from '../../components/UI/ThemeToggler';
 import { motion } from 'framer-motion';
 import { UserType } from '@/app/types/userType';
 
@@ -57,6 +56,8 @@ const ForgotPage = ({ params }: any) => {
             data: {
                 token: params.token
             },
+            loadingString: 'Checking token...',
+            successString: 'All ok! You can reset your password',
             actionOnFailure: () => {
                 router.push('/login');
             },
@@ -67,13 +68,11 @@ const ForgotPage = ({ params }: any) => {
     }, [params.token, router]);
 
     return (
-        <div className="flex h-full w-full flex-col items-center justify-center gap-8 bg-gradient-to-br from-light-bg to-primary-hover p-8 dark:from-dark-bg dark:to-primary">
-            <ThemeToggler />
-
+        <div className="flex h-full w-full flex-col items-center justify-center bg-gradient-to-br from-light-bg to-primary-hover lg:gap-8 lg:p-8 dark:from-dark-bg dark:to-primary">
             <motion.form
                 layoutId="loginForm"
                 onSubmit={(e) => submit(e)}
-                className={`relative flex max-h-[95%] w-96 min-w-96 max-w-[95%] flex-col items-center gap-4 rounded-2xl bg-white !bg-opacity-50 p-12 shadow-md dark:bg-black`}
+                className={`!max-w-sreen flex !h-screen max-h-screen !w-screen flex-col items-center justify-center gap-6 bg-white !bg-opacity-50 p-8 lg:!h-fit lg:max-h-[95%] lg:!w-fit lg:min-w-96 lg:!max-w-[95%] lg:gap-4 lg:rounded-2xl lg:px-12 lg:py-6 lg:shadow-md dark:bg-black`}
             >
                 <motion.div
                     layoutId="logoImg"
@@ -109,6 +108,7 @@ const ForgotPage = ({ params }: any) => {
                     name="passwordReset"
                     placeholder="New password"
                     disabled={fetching}
+                    className="mt-8 lg:mt-4"
                     placeholderType="classic"
                     passwordSetup={true}
                 />
@@ -120,13 +120,14 @@ const ForgotPage = ({ params }: any) => {
                     disabled={fetching}
                     placeholder="Repeat new password"
                     placeholderType="classic"
+                    className="-mt-2"
                 />
 
                 <Button
                     type="submit"
                     layoutId="submitButton"
                     variant="colored"
-                    className="w-full"
+                    className="mt-8 w-full lg:mt-0"
                     disabled={fetching}
                     buttonClassName="dark:bg-primary text-white bg-primary hover:!bg-primary-hover dark:hover:!bg-primary-dark outline outline-2 outline-offset-1 outline-transparent focus:outline-primary"
                 >

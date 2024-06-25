@@ -6,7 +6,7 @@ interface ButtonProps extends React.HTMLAttributes<HTMLButtonElement> {
     children?: React.ReactNode;
     variant: 'bordered' | 'colored' | 'transparent';
     disabled?: boolean;
-    buttonClassName?: string;
+    buttonClassName?: React.HTMLProps<HTMLButtonElement>['className'];
     layoutId?: string;
     type?: 'button' | 'submit';
 }

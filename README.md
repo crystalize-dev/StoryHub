@@ -1,3 +1,3 @@
 # Todo
 
--   responsive design (Login page)
+-   sidebar

@@ -120,7 +120,7 @@ const LoginPage = () => {
     const [activeImageId, setActiveImageId] = useState(sliderImages[0].id);
 
     return (
-        <div className="flex h-full w-full flex-col items-center justify-center gap-8 bg-gradient-to-br from-light-bg to-primary-hover p-8 dark:from-dark-bg dark:to-primary">
+        <div className="flex h-full w-full flex-col items-center justify-center bg-gradient-to-br from-light-bg to-primary-hover lg:gap-8 lg:p-8 dark:from-dark-bg dark:to-primary">
             <AnimatePresence presenceAffectsLayout>
                 {(mode === 'login' || mode === 'register') && (
                     <motion.form
@@ -129,7 +129,7 @@ const LoginPage = () => {
                         exit={{ height: 'auto' }}
                         layoutId="loginForm"
                         onSubmit={(e) => submit(e)}
-                        className={`flex max-h-[95%] max-w-[95%] gap-10 rounded-2xl bg-white !bg-opacity-50 p-6 shadow-md dark:bg-black ${mode === 'register' && 'flex-row-reverse'}`}
+                        className={`!max-w-sreen flex !h-screen max-h-screen !w-screen items-center justify-center gap-10 bg-white !bg-opacity-50 lg:!h-fit lg:max-h-[95%] lg:!w-fit lg:!max-w-[95%] lg:items-baseline lg:rounded-2xl lg:p-6 lg:shadow-md dark:bg-black ${mode === 'register' && 'flex-row-reverse'}`}
                     >
                         <AnimatePresence presenceAffectsLayout>
                             {(mode === 'login' || mode === 'register') && (
@@ -138,7 +138,7 @@ const LoginPage = () => {
                                     initial={{ opacity: 0 }}
                                     animate={{ opacity: 1 }}
                                     exit={{ opacity: 0 }}
-                                    className="flex min-w-96 flex-col gap-2 px-8"
+                                    className="flex flex-col gap-2 px-4 lg:min-w-96 lg:px-8"
                                 >
                                     <motion.div
                                         layoutId="logoImg"
@@ -296,7 +296,7 @@ const LoginPage = () => {
                                     }
                                     exit={{ scaleY: 0 }}
                                     layoutId="sideBanner"
-                                    className="flex h-full min-w-96 grow flex-col items-center gap-4 overflow-hidden rounded-t-lg bg-light-bg p-4 dark:bg-dark-object"
+                                    className="hidden h-full min-w-96 grow flex-col items-center gap-4 overflow-hidden rounded-t-lg bg-light-bg p-4 lg:flex dark:bg-dark-object"
                                 >
                                     <div className="relative flex h-full w-96 min-w-96 gap-4 overflow-hidden">
                                         <AnimatePresence mode="wait">

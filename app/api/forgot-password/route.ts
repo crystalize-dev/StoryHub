@@ -35,7 +35,7 @@ export async function POST(req: NextRequest) {
     expirationTokenDate.setHours(expirationTokenDate.getHours() + 1);
 
     try {
-        await await prisma.user.update({
+        await prisma.user.update({
             where: { id: user.id },
             data: {
                 resetToken: resetTokenHash,

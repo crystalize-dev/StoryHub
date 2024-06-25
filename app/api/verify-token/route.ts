@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
 
     if (!user || !user.resetToken || !user.resetTokenExpired) {
         return NextResponse.json(
-            { error: 'User does not exists!' },
+            { error: 'Token does not exists!' },
             { status: 400 }
         );
     }
@@ -41,6 +41,4 @@ export async function POST(req: NextRequest) {
     } else {
         return NextResponse.json(user, { status: 200 });
     }
-
-    return NextResponse.json(user, { status: 200 });
 }
