@@ -1,19 +1,23 @@
 'use client';
+
 import React, { FormEvent, useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
+import { useRouter } from 'next/navigation';
+import { signIn } from 'next-auth/react';
+
+import { customAxios } from '@/axios/customAxios';
+import toast from 'react-hot-toast';
+
+import Input from '../components/UI/Inputs/Input';
+import Button from '../components/UI/Buttons/Button';
+import TypewriterComponent from 'typewriter-effect';
+
 import Image from 'next/image';
 import logo from '../img/logo.png';
 import google from '../img/google.webp';
-import Input from '../components/UI/Inputs/Input';
-import Button from '../components/UI/Buttons/Button';
-import { AnimatePresence, motion } from 'framer-motion';
-import { signIn } from 'next-auth/react';
-import toast from 'react-hot-toast';
-import { customAxios } from '@/axios/customAxios';
-import { useRouter } from 'next/navigation';
 import image1 from '../img/Slider/image1.png';
 import image2 from '../img/Slider/image2.png';
 import image3 from '../img/Slider/image3.png';
-import TypewriterComponent from 'typewriter-effect';
 
 const LoginPage = () => {
     const [mode, setMode] = useState<'login' | 'register'>('login');
@@ -22,28 +26,27 @@ const LoginPage = () => {
 
     const submit = async (e: FormEvent) => {
         e.preventDefault();
-
         const formData = new FormData(e.target as HTMLFormElement);
-        const email = formData.get('emailLogin');
-        const password = formData.get('passwordLogin');
+        const email = formData.get('emailLogin') as string;
+        const password = formData.get('passwordLogin') as string;
 
-        if (mode === 'login') {
-            if (!email || !password) {
-                toast.error('Fill in all required fields!');
-                return;
-            }
+        if (!email || !password) {
+            toast.error('Fill in all required fields!');
+            return;
+        }
 
-            setFetching(true);
-            const toastId = toast.loading('Entering...');
-            try {
+        setFetching(true);
+        const toastId = toast.loading(
+            mode === 'login' ? 'Entering...' : 'Registering...'
+        );
+
+        try {
+            if (mode === 'login') {
                 const result = await signIn('credentials', {
-                    email: email,
-                    password: password,
+                    email,
+                    password,
                     redirect: false
                 });
-
-                toast.dismiss(toastId);
-                setFetching(false);
 
                 if (result && result.error) {
                     toast.error(result.error);
@@ -51,33 +54,33 @@ const LoginPage = () => {
                     toast.success('Success!');
                     router.push('/');
                 }
-            } catch (err) {
-                setFetching(false);
-                toast.dismiss(toastId);
+            } else {
+                const passwordRepeat = formData.get('passwordRepeat') as string;
 
-                toast.error('Error occurred!');
+                if (password !== passwordRepeat) {
+                    toast.error('Passwords do not match!');
+                    return;
+                }
+
+                if (!passwordRepeat) {
+                    toast.error('Fill in all required fields!');
+                    return;
+                }
+
+                await customAxios('POST', 'register', setFetching, {
+                    data: { email, password },
+                    actionOnSuccess: () => {
+                        setMode('login');
+                    },
+                    loadingString: 'Registering...',
+                    successString: 'Success! Now you can log in!'
+                });
             }
-        } else {
-            const passwordRepeat = formData.get('passwordRepeat');
-
-            if (!email || !password || !passwordRepeat) {
-                toast.error('Fill in all required fields!');
-                return;
-            }
-
-            if (password !== passwordRepeat) {
-                toast.error('Passwords do not match!');
-                return;
-            }
-
-            await customAxios('POST', 'register', setFetching, {
-                data: { email: email, password: password },
-                actionOnSuccess: () => {
-                    setMode('login');
-                },
-                loadingString: 'Registering...',
-                successString: 'Success! Now you can log in!'
-            });
+        } catch (err) {
+            toast.error('Error occurred!');
+        } finally {
+            setFetching(false);
+            toast.dismiss(toastId);
         }
     };
 
@@ -93,10 +96,11 @@ const LoginPage = () => {
             toast.promise(promise, {
                 loading: 'Entering...',
                 success: 'Success!',
-                error: 'Error occured!'
+                error: 'Error occurred!'
             });
         } catch (err) {
             setFetching(false);
+            toast.error('Error occurred!');
         }
     };
 
@@ -128,8 +132,10 @@ const LoginPage = () => {
                         animate={{ height: 'auto' }}
                         exit={{ height: 'auto' }}
                         layoutId="loginForm"
-                        onSubmit={(e) => submit(e)}
-                        className={`!max-w-sreen flex !h-screen max-h-screen !w-screen items-center justify-center gap-10 bg-white !bg-opacity-50 lg:!h-fit lg:max-h-[95%] lg:!w-fit lg:!max-w-[95%] lg:items-baseline lg:rounded-2xl lg:p-6 lg:shadow-md dark:bg-black ${mode === 'register' && 'flex-row-reverse'}`}
+                        onSubmit={submit}
+                        className={`!max-w-sreen flex !h-screen max-h-screen !w-screen items-center justify-center gap-10 bg-white !bg-opacity-50 lg:!h-fit lg:max-h-[95%] lg:!w-fit lg:!max-w-[95%] lg:items-baseline lg:rounded-2xl lg:p-6 lg:shadow-md dark:bg-black ${
+                            mode === 'register' ? 'flex-row-reverse' : ''
+                        }`}
                     >
                         <AnimatePresence presenceAffectsLayout>
                             {(mode === 'login' || mode === 'register') && (
@@ -149,7 +155,7 @@ const LoginPage = () => {
                                             alt="logo"
                                             width={500}
                                             height={500}
-                                            priority={true}
+                                            priority
                                             className="h-full w-fit object-cover"
                                         />
                                         <h1 className="text-lg">
@@ -182,7 +188,7 @@ const LoginPage = () => {
                                         placeholder="Email"
                                         disabled={fetching}
                                         icon="mail"
-                                        required={true}
+                                        required
                                         name="emailLogin"
                                         placeholderType="classic"
                                         className="mt-4"
@@ -191,13 +197,13 @@ const LoginPage = () => {
                                     <Input
                                         layoutId="passwordLogin"
                                         type="password"
-                                        required={true}
+                                        required
                                         name="passwordLogin"
                                         placeholder="Password"
                                         disabled={fetching}
                                         placeholderType="classic"
                                         forgotPassword={mode === 'login'}
-                                        passwordSetup={true}
+                                        passwordSetup
                                     />
 
                                     <Input
@@ -219,7 +225,9 @@ const LoginPage = () => {
                                         disabled={fetching}
                                         buttonClassName="dark:bg-primary text-white bg-primary hover:!bg-primary-hover dark:hover:!bg-primary-dark outline outline-2 outline-offset-1 outline-transparent focus:outline-primary"
                                     >
-                                        Sign in
+                                        {mode === 'login'
+                                            ? 'Sign in'
+                                            : 'Register'}
                                     </Button>
 
                                     <div className="relative flex items-center justify-center gap-2">
@@ -248,9 +256,9 @@ const LoginPage = () => {
                                     </Button>
 
                                     <div className="mb-12 mt-4 flex items-center justify-center gap-2 text-sm text-zinc-500">
-                                        {(mode === 'login'
-                                            ? 'Don`t'
-                                            : 'Already') + ' have an account?'}
+                                        {mode === 'login'
+                                            ? "Don't have an account?"
+                                            : 'Already have an account?'}
                                         <Button
                                             type="button"
                                             variant="transparent"
@@ -265,8 +273,8 @@ const LoginPage = () => {
                                             buttonClassName="!p-0 cursor-pointer font-semibold text-black/70 outline-none transition-all hover:text-primary hover:underline focus:text-primary focus:underline dark:text-white/70"
                                         >
                                             {mode === 'login'
-                                                ? 'Sign in'
-                                                : 'Log in'}
+                                                ? 'Sign up'
+                                                : 'Sign in'}
                                         </Button>
                                     </div>
                                 </motion.div>
@@ -311,33 +319,21 @@ const LoginPage = () => {
                                                         key={image.id}
                                                         className="flex w-96 max-w-96 flex-col items-center text-balance text-center text-4xl font-bold"
                                                     >
-                                                        {sliderImages
-                                                            .filter(
-                                                                (image) =>
-                                                                    image.id ===
-                                                                    activeImageId
-                                                            )
-                                                            .map((image) => (
-                                                                <TypewriterComponent
-                                                                    key={
-                                                                        image.id
-                                                                    }
-                                                                    onInit={(
-                                                                        typewriter
-                                                                    ) => {
-                                                                        typewriter
-                                                                            .typeString(
-                                                                                image.text
-                                                                            )
-                                                                            .start();
-                                                                    }}
-                                                                    options={{
-                                                                        delay: 60,
-                                                                        autoStart:
-                                                                            true
-                                                                    }}
-                                                                />
-                                                            ))}
+                                                        <TypewriterComponent
+                                                            onInit={(
+                                                                typewriter
+                                                            ) => {
+                                                                typewriter
+                                                                    .typeString(
+                                                                        image.text
+                                                                    )
+                                                                    .start();
+                                                            }}
+                                                            options={{
+                                                                delay: 60,
+                                                                autoStart: true
+                                                            }}
+                                                        />
                                                         <motion.div
                                                             layout
                                                             initial={{
@@ -349,7 +345,7 @@ const LoginPage = () => {
                                                             exit={{
                                                                 opacity: 0
                                                             }}
-                                                            className={`absolute inset-0`}
+                                                            className="absolute inset-0"
                                                         >
                                                             <Image
                                                                 src={
@@ -358,7 +354,7 @@ const LoginPage = () => {
                                                                 alt="sliderImage"
                                                                 width={1000}
                                                                 height={1000}
-                                                                priority={true}
+                                                                priority
                                                                 className="h-full w-full object-contain"
                                                             />
                                                         </motion.div>
@@ -374,9 +370,9 @@ const LoginPage = () => {
                                                     setActiveImageId(image.id)
                                                 }
                                                 className={`relative z-20 flex h-2 w-2 cursor-pointer items-center justify-center rounded-full bg-light-object transition-all ${
-                                                    activeImageId ===
-                                                        image.id &&
-                                                    '!bg-primary'
+                                                    activeImageId === image.id
+                                                        ? '!bg-primary'
+                                                        : ''
                                                 }`}
                                             />
                                         ))}

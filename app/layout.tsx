@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
+
 import './globals.css';
-import { LayoutProvider } from './layoutProvider';
+
+import LayoutProvider from './layoutProvider';
 
 export const metadata: Metadata = {
     title: 'StoryHub',

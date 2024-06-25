@@ -1,24 +1,28 @@
 'use client';
+
 import Image from 'next/image';
 import logo from '../img/logo.png';
-import { customAxios } from '@/axios/customAxios';
+
 import React, { FormEvent, useState } from 'react';
-import toast from 'react-hot-toast';
-import Icon from '../components/Icon/Icon';
 import { useRouter } from 'next/navigation';
-import Input from '../components/UI/Inputs/Input';
-import Button from '../components/UI/Buttons/Button';
 import { motion } from 'framer-motion';
 
-const ForgotPage = () => {
+import { customAxios } from '@/axios/customAxios';
+import toast from 'react-hot-toast';
+
+import Icon from '../components/Icon/Icon';
+import Input from '../components/UI/Inputs/Input';
+import Button from '../components/UI/Buttons/Button';
+
+const ForgotPage: React.FC = () => {
     const [fetching, setFetching] = useState(false);
     const router = useRouter();
 
-    const submit = async (e: FormEvent) => {
+    const submit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
         const formData = new FormData(e.target as HTMLFormElement);
-        const email = formData.get('resetEmail');
+        const email = formData.get('resetEmail') as string;
 
         if (!email) {
             toast.error('Fill in all required fields!');
@@ -39,8 +43,8 @@ const ForgotPage = () => {
         <div className="flex h-full w-full flex-col items-center justify-center bg-gradient-to-br from-light-bg to-primary-hover lg:gap-8 lg:p-8 dark:from-dark-bg dark:to-primary">
             <motion.form
                 layoutId="loginForm"
-                onSubmit={(e) => submit(e)}
-                className={`!max-w-sreen flex !h-screen max-h-screen !w-screen flex-col items-center justify-center gap-4 bg-white !bg-opacity-50 p-8 lg:relative lg:!h-fit lg:max-h-[95%] lg:!w-fit lg:!max-w-[95%] lg:gap-6 lg:rounded-2xl lg:p-6 lg:shadow-md dark:bg-black`}
+                onSubmit={submit}
+                className="!max-w-sreen flex !h-screen max-h-screen !w-screen flex-col items-center justify-center gap-4 bg-white !bg-opacity-50 p-8 lg:relative lg:!h-fit lg:max-h-[95%] lg:!w-fit lg:!max-w-[95%] lg:gap-6 lg:rounded-2xl lg:p-6 lg:shadow-md dark:bg-black"
             >
                 <div
                     className="group absolute left-2 top-6 flex cursor-pointer items-center gap-1 rounded-full bg-white/20 px-4 py-2 text-sm lg:-left-0 lg:-top-14 lg:bg-transparent lg:hover:bg-white/20 lg:dark:hover:!bg-black/20"
@@ -76,7 +80,7 @@ const ForgotPage = () => {
                 >
                     <h1 className="mt-4 text-3xl font-bold">Reset password</h1>
                     <h2 className="text-sm font-normal text-zinc-400 dark:text-white/20">
-                        please enter email account below
+                        Please enter email account below
                     </h2>
                 </motion.div>
 
@@ -86,7 +90,7 @@ const ForgotPage = () => {
                     placeholder="Email"
                     disabled={fetching}
                     icon="mail"
-                    required={true}
+                    required
                     name="resetEmail"
                     placeholderType="classic"
                     className="mt-8 lg:mt-0"

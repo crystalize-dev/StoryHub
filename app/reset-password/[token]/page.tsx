@@ -1,21 +1,25 @@
 'use client';
-import Image from 'next/image';
-import logo from '../../img/logo.png';
-import { customAxios } from '@/axios/customAxios';
-import React, { FormEvent, useEffect, useState } from 'react';
-import toast from 'react-hot-toast';
+
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { motion } from 'framer-motion';
+
+import { customAxios } from '@/axios/customAxios';
+import toast from 'react-hot-toast';
+
+import Image from 'next/image';
 import Input from '../../components/UI/Inputs/Input';
 import Button from '../../components/UI/Buttons/Button';
-import { motion } from 'framer-motion';
+import logo from '../../img/logo.png';
+
 import { UserType } from '@/app/types/userType';
 
 const ForgotPage = ({ params }: any) => {
-    const [user, setUser] = useState<null | UserType>(null);
+    const [user, setUser] = useState<UserType | null>(null);
     const [fetching, setFetching] = useState(false);
     const router = useRouter();
 
-    const submit = async (e: FormEvent) => {
+    const submit = async (e: React.FormEvent) => {
         e.preventDefault();
 
         const formData = new FormData(e.target as HTMLFormElement);
@@ -38,17 +42,22 @@ const ForgotPage = ({ params }: any) => {
             return;
         }
 
-        await customAxios('POST', 'reset-password', setFetching, {
-            data: {
-                password: password,
-                user: user
-            },
-            actionOnSuccess: () => {
-                router.push('/login');
-            },
-            loadingString: 'Resetting password...',
-            successString: 'Success! Now you can log in!'
-        });
+        try {
+            await customAxios('POST', 'reset-password', setFetching, {
+                data: {
+                    password,
+                    user
+                },
+                actionOnSuccess: () => {
+                    router.push('/login');
+                    toast.success('Success! Now you can log in!');
+                },
+                loadingString: 'Resetting password...',
+                successString: 'Success! Now you can log in!'
+            });
+        } catch (error) {
+            toast.error('Failed to reset password. Please try again later.');
+        }
     };
 
     useEffect(() => {
@@ -71,7 +80,7 @@ const ForgotPage = ({ params }: any) => {
         <div className="flex h-full w-full flex-col items-center justify-center bg-gradient-to-br from-light-bg to-primary-hover lg:gap-8 lg:p-8 dark:from-dark-bg dark:to-primary">
             <motion.form
                 layoutId="loginForm"
-                onSubmit={(e) => submit(e)}
+                onSubmit={submit}
                 className={`!max-w-sreen flex !h-screen max-h-screen !w-screen flex-col items-center justify-center gap-6 bg-white !bg-opacity-50 p-8 lg:!h-fit lg:max-h-[95%] lg:!w-fit lg:min-w-96 lg:!max-w-[95%] lg:gap-4 lg:rounded-2xl lg:px-12 lg:py-6 lg:shadow-md dark:bg-black`}
             >
                 <motion.div
@@ -104,19 +113,19 @@ const ForgotPage = ({ params }: any) => {
 
                 <Input
                     type="password"
-                    required={true}
+                    required
                     name="passwordReset"
                     placeholder="New password"
                     disabled={fetching}
                     className="mt-8 lg:mt-4"
                     placeholderType="classic"
-                    passwordSetup={true}
+                    passwordSetup
                 />
 
                 <Input
                     type="password"
                     name="passwordResetRepeat"
-                    required={true}
+                    required
                     disabled={fetching}
                     placeholder="Repeat new password"
                     placeholderType="classic"
