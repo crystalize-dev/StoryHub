@@ -8,33 +8,38 @@ const prisma = new PrismaClient();
 const transporter = createTransport({
     service: 'gmail',
     auth: {
-        user: process.env.GMAil_LOGIN,
+        user: process.env.GMAIL_LOGIN,
         pass: process.env.GMAIL_PASSWORD
     }
 });
 
 export async function POST(req: NextRequest) {
-    const { email } = await req.json();
-
-    const user = await prisma.user.findUnique({ where: { email } });
-
-    if (!user || !email)
-        return NextResponse.json(
-            { error: 'User does not exists!' },
-            { status: 400 }
-        );
-
-    const resetToken = crypto.randomBytes(20).toString('hex');
-    const resetTokenHash = crypto
-        .createHash('sha256')
-        .update(resetToken)
-        .digest('hex');
-
-    const expirationTokenDate = new Date();
-
-    expirationTokenDate.setHours(expirationTokenDate.getHours() + 1);
-
     try {
+        const { email } = await req.json();
+
+        if (!email) {
+            return NextResponse.json(
+                { error: 'Email is required!' },
+                { status: 400 }
+            );
+        }
+
+        const user = await prisma.user.findUnique({ where: { email } });
+
+        if (!user) {
+            return NextResponse.json(
+                { error: 'User does not exist!' },
+                { status: 400 }
+            );
+        }
+
+        const resetToken = crypto.randomBytes(20).toString('hex');
+        const resetTokenHash = crypto
+            .createHash('sha256')
+            .update(resetToken)
+            .digest('hex');
+        const expirationTokenDate = new Date(Date.now() + 3600000); // 1 hour from now
+
         await prisma.user.update({
             where: { id: user.id },
             data: {
@@ -42,31 +47,29 @@ export async function POST(req: NextRequest) {
                 resetTokenExpired: expirationTokenDate
             }
         });
+
+        const resetURL = `${process.env.NEXT_URL}/reset-password/${resetToken}`;
+        const mailOptions = {
+            from: process.env.GMAIL_LOGIN,
+            to: email,
+            subject: 'StoryHub Reset Password',
+            html: `
+                <h1>StoryHub Reset Password</h1>
+                <p>You requested a password reset</p>
+                <p>Click this <a href="${resetURL}">${resetURL}</a> to set a new password</p>
+            `
+        };
+
+        await transporter.sendMail(mailOptions);
+
+        return NextResponse.json(
+            { message: 'Password reset email sent!' },
+            { status: 200 }
+        );
     } catch (err) {
         return NextResponse.json(
-            { error: 'Something went wrong with database!' },
-            { status: 400 }
+            { error: 'Internal Server Error' },
+            { status: 500 }
         );
     }
-
-    const resetURL = process.env.NEXT_URL + 'reset-password/' + resetToken;
-    const mailOptions = {
-        from: process.env.GMAil_LOGIN,
-        to: email,
-        subject: 'StoryHub Reset Password',
-        html: `<h1>StoryHub Reset Password</h1>
-        <p>You requested a password reset</p>
-        <p>Click this <a href="${resetURL}">${resetURL}</a> to set a new password</p>`
-    };
-
-    try {
-        transporter.sendMail({ ...mailOptions });
-    } catch (err) {
-        return NextResponse.json(
-            { error: 'Something went wrong with sending email!' },
-            { status: 400 }
-        );
-    }
-
-    return NextResponse.json(user, { status: 200 });
 }

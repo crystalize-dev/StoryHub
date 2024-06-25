@@ -5,27 +5,35 @@ import bcrypt from 'bcrypt';
 const prisma = new PrismaClient();
 
 export async function POST(req: NextRequest) {
-    const { password, user } = await req.json();
-
-    let userUpdated;
     try {
-        const salt = bcrypt.genSaltSync(10);
-        const hashedPassword = bcrypt.hashSync(password, salt);
+        const { password, user } = await req.json();
 
-        userUpdated = await prisma.user.update({
+        if (!password || !user || !user.id) {
+            return NextResponse.json(
+                { error: 'Invalid request data!' },
+                { status: 400 }
+            );
+        }
+
+        // Хэширование пароля
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(password, salt);
+
+        // Обновление пользователя
+        const userUpdated = await prisma.user.update({
             where: { id: user.id },
             data: {
-                hashedPassword: hashedPassword,
+                hashedPassword,
                 resetToken: null,
                 resetTokenExpired: null
             }
         });
+
+        return NextResponse.json(userUpdated, { status: 200 });
     } catch (err) {
         return NextResponse.json(
             { error: 'Something went wrong with database!' },
-            { status: 400 }
+            { status: 500 }
         );
     }
-
-    return NextResponse.json(userUpdated, { status: 200 });
 }
