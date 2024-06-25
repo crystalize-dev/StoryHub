@@ -124,7 +124,7 @@ const LoginPage = () => {
     const [activeImageId, setActiveImageId] = useState(sliderImages[0].id);
 
     return (
-        <div className="flex h-full w-full flex-col items-center justify-center bg-gradient-to-br from-light-bg to-primary-hover lg:gap-8 lg:p-8 dark:from-dark-bg dark:to-primary">
+        <div className="flex h-screen w-screen flex-col items-center justify-center bg-gradient-to-br from-light-bg to-primary-hover lg:gap-8 lg:p-8 dark:from-dark-bg dark:to-primary">
             <AnimatePresence presenceAffectsLayout>
                 {(mode === 'login' || mode === 'register') && (
                     <motion.form

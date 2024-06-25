@@ -1,3 +1,3 @@
 # Todo
 
--   sidebar
+-   responsive design for sidebar
