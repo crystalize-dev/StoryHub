@@ -2,66 +2,46 @@ import axios from 'axios';
 import React from 'react';
 import toast from 'react-hot-toast';
 
+type Method = 'POST' | 'GET' | 'DELETE' | 'PUT';
+
+interface Options {
+    data?: any;
+    actionOnSuccess?: (data: unknown) => void;
+    actionOnFailure?: (error: unknown) => void;
+    loadingString?: string;
+    successString?: string;
+}
+
 export const customAxios = async (
-    method: 'POST' | 'GET' | 'DELETE' | 'PUT',
+    method: Method,
     url: string,
     setFetching: React.Dispatch<React.SetStateAction<boolean>>,
-    options?: {
-        data?: any;
-        actionOnSuccess?: (data: unknown) => void;
-        actionOnFailure?: (error: unknown) => void;
-        loadingString?: string;
-        successString?: string;
-    }
+    options?: Options
 ) => {
     const getAxiosInstance = () => {
-        let axiosMethod: any;
-        url = '/api/' + url;
+        const axiosConfig = { url: `/api/${url}`, method, data: options?.data };
 
         setFetching(true);
 
-        switch (method) {
-            case 'POST':
-                axiosMethod = axios.post(url, options?.data);
-                break;
-            case 'GET':
-                axiosMethod = axios.get(url);
-                break;
-            case 'DELETE':
-                axiosMethod = axios.delete(url, { data: options?.data });
-                break;
-            case 'PUT':
-                axiosMethod = axios.put(url, options?.data);
-                break;
-            default:
-                axiosMethod = axios.post(url, options?.data);
-                break;
-        }
-
-        return axiosMethod
-            .then((res: any) => {
+        return axios(axiosConfig)
+            .then((res) => {
                 setFetching(false);
 
                 if (res.status === 200) {
-                    if (options?.actionOnSuccess) {
-                        options.actionOnSuccess(res.data);
-                    }
-                    return Promise.resolve();
+                    options?.actionOnSuccess?.(res.data);
+                    return res.data;
                 } else {
-                    if (options?.actionOnFailure) {
-                        options.actionOnFailure(res.data);
-                    }
-                    return Promise.reject('Что-то пошло не так!');
+                    const errorMsg =
+                        res.data?.message || 'Something went wrong!';
+                    options?.actionOnFailure?.(errorMsg);
+                    return Promise.reject(errorMsg);
                 }
             })
-            .catch((err: any) => {
+            .catch((err) => {
                 setFetching(false);
-
-                if (options?.actionOnFailure) {
-                    options.actionOnFailure(err);
-                }
-
-                return Promise.reject(err.response.data.error);
+                const errorMsg = err.response?.data?.error || 'Server error!';
+                options?.actionOnFailure?.(errorMsg);
+                return Promise.reject(errorMsg);
             });
     };
 
@@ -69,10 +49,8 @@ export const customAxios = async (
 
     if (options?.loadingString || options?.successString) {
         await toast.promise(promise, {
-            loading: options?.loadingString
-                ? options.loadingString
-                : 'Загрузка...',
-            success: options?.successString ? options.successString : 'Успех!',
+            loading: options.loadingString || 'Loading...',
+            success: options.successString || 'Success!',
             error: (err) => `${err}`
         });
     }
