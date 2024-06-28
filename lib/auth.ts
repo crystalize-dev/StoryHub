@@ -15,6 +15,7 @@ const prisma = new PrismaClient();
 
 interface CustomUser extends NextAuthUser {
     id: string;
+    image: string;
 }
 
 // Extend the Session type to include the custom user type
@@ -72,6 +73,7 @@ export const authConfig: NextAuthOptions = {
                 (session.user as CustomUser).id = token.id as string;
                 session.user.name = token.name;
                 session.user.email = token.email;
+                (session.user as CustomUser).image = token.image as string;
             }
 
             return session as CustomSession;
@@ -91,7 +93,8 @@ export const authConfig: NextAuthOptions = {
             return {
                 id: dbUser.id,
                 name: dbUser.name,
-                email: dbUser.email
+                email: dbUser.email,
+                image: dbUser.image
             };
         }
     }

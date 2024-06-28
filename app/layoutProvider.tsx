@@ -6,7 +6,7 @@ import { ThemeContext } from './context/ThemeContext';
 import { SessionProvider } from 'next-auth/react';
 import { usePathname } from 'next/navigation';
 
-import { Sidebar } from './components/Nav/Sidebar';
+import { Sidebar } from './components/Sidebar';
 import { Toaster } from 'react-hot-toast';
 import { TailSpin } from 'react-loader-spinner';
 import ThemeToggler from './components/UI/ThemeToggler';
@@ -22,7 +22,7 @@ const LayoutProvider = ({ children }: { children: React.ReactNode }) => {
         <SessionProvider>
             <Suspense fallback={<TailSpin color="var(--primary)" />}>
                 <ThemeProvider>
-                    <main className="flex h-screen w-screen bg-light-bg text-black dark:bg-dark-bg dark:text-white">
+                    <main className="flex h-screen w-screen flex-col bg-light-bg text-black lg:flex-row dark:bg-dark-bg dark:text-white">
                         <Toaster />
 
                         {!isLoginPage && <Sidebar />}
