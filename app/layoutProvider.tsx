@@ -27,7 +27,9 @@ const LayoutProvider = ({ children }: { children: React.ReactNode }) => {
 
                         {!isLoginPage && <Sidebar />}
 
-                        <div className="flex h-full w-full flex-grow flex-col bg-light-object dark:bg-dark-object">
+                        <div
+                            className={`flex h-full w-full flex-grow flex-col bg-light-object dark:bg-dark-object ${!isLoginPage && 'px-16 py-8'}`}
+                        >
                             {isLoginPage && (
                                 <ThemeToggler className="absolute right-8 top-8" />
                             )}
